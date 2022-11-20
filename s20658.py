@@ -1,4 +1,3 @@
-import matplotlib.pylab as plt
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -16,7 +15,8 @@ class Classifier:
         self.ppn3 = ppn3
 
     def predict(self, x):
-        return np.where(self.ppn1.predict(x) == 1, 0, np.where(self.ppn2.predict(x) == 1, 1, np.where(self.ppn2.predict(x) == 1, 2)))
+        return np.where(self.ppn1.predict(x) == 1, 2, np.where(self.ppn2.predict(x) == 1, 1,
+                                                               np.where(self.ppn3.predict(x) == 1, 0, 1)))
 
 
 def main():
@@ -29,44 +29,44 @@ def main():
     y_train_02_subset = y_train.copy()
     y_train_03_subset = y_train.copy()
 
-    y_train_01_subset[y_train != 2] = -1
-    y_train_01_subset[y_train == 2] = 1
+    y_train_01_subset[y_train_01_subset != 2] = -1
+    y_train_01_subset[y_train_01_subset == 2] = 1
 
-    y_train_02_subset[y_train != 1] = -1
-    y_train_02_subset[y_train == 1] = 1
+    y_train_02_subset[y_train_02_subset != 1] = -1
+    y_train_02_subset[y_train_02_subset == 1] = 1
 
-    y_train_03_subset[y_train != 0] = -1
-    y_train_03_subset[y_train == 0] = 1
+    y_train_03_subset[y_train_03_subset != 0] = -1
+    y_train_03_subset[y_train_03_subset == 0] = 1
 
     # Models learn
-    ppn1 = Perceptron(eta=0.1, n_iter=300)
+    ppn1 = Perceptron(eta=0.05, n_iter=1000)
     ppn1.fit(x_train, y_train_01_subset)
 
-    ppn2 = Perceptron(eta=0.1, n_iter=300)
+    ppn2 = Perceptron(eta=0.05, n_iter=1000)
     ppn2.fit(x_train, y_train_02_subset)
 
-    ppn3 = Perceptron(eta=0.1, n_iter=300)
+    ppn3 = Perceptron(eta=0.05, n_iter=1000)
     ppn3.fit(x_train, y_train_03_subset)
 
     y_train_01_subset_lr = y_train.copy()
     y_train_02_subset_lr = y_train.copy()
     y_train_03_subset_lr = y_train.copy()
 
-    y_train_01_subset_lr[y_train != 2] = -1
-    y_train_01_subset_lr[y_train == 2] = 1
-    y_train_01_subset_lr[y_train == -1] = 0
+    y_train_01_subset_lr[y_train_01_subset_lr != 2] = -1
+    y_train_01_subset_lr[y_train_01_subset_lr == 2] = 1
+    y_train_01_subset_lr[y_train_01_subset_lr == -1] = 0
 
-    y_train_02_subset_lr[y_train != 1] = -1
-    y_train_02_subset_lr[y_train == 1] = 1
-    y_train_02_subset_lr[y_train == -1] = 0
+    y_train_02_subset_lr[y_train_02_subset_lr != 1] = -1
+    y_train_02_subset_lr[y_train_02_subset_lr == 1] = 1
+    y_train_02_subset_lr[y_train_02_subset_lr == -1] = 0
 
-    y_train_03_subset_lr[y_train != 0] = -1
-    y_train_03_subset_lr[y_train == 0] = 1
-    y_train_03_subset_lr[y_train == -1] = 0
+    y_train_03_subset_lr[y_train_03_subset_lr != 0] = -1
+    y_train_03_subset_lr[y_train_03_subset_lr == 0] = 1
+    y_train_03_subset_lr[y_train_03_subset_lr == -1] = 0
 
-    lrGD1 = LogisticRegressionGD(eta=0.1, n_iter=1000, random_state=3)
-    lrGD2 = LogisticRegressionGD(eta=0.1, n_iter=1000, random_state=1)
-    lrGD3 = LogisticRegressionGD(eta=0.1, n_iter=1000, random_state=1)
+    lrGD1 = LogisticRegressionGD(eta=0.05, n_iter=1000, random_state=3)
+    lrGD2 = LogisticRegressionGD(eta=0.05, n_iter=1000, random_state=1)
+    lrGD3 = LogisticRegressionGD(eta=0.05, n_iter=1000, random_state=1)
 
     lrGD1.fit(x_train, y_train_01_subset_lr)
     lrGD2.fit(x_train, y_train_02_subset_lr)
@@ -91,7 +91,7 @@ def main():
 
     print("Total accuracy: ", accuracy(y_results, y_train))
 
-    _classifier = Classifier(lrGD1, lrGD2, lrGD3)
+    _classifier = Classifier(ppn1, ppn2, ppn3)
 
     # make graphs
     plt.subplot(1, 2, 1)
@@ -100,6 +100,8 @@ def main():
     plt.ylabel('Petal width')
     plt.legend(loc='upper left')
     plt.title("PERCEPTRON")
+
+    _classifier = Classifier(lrGD1, lrGD2, lrGD3)
 
     plt.subplot(1, 2, 2)
     plot_decision_regions(x=x_test, y=y_test, classifier=_classifier)
