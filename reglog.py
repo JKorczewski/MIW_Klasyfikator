@@ -38,6 +38,10 @@ class LogisticRegressionGD:
     def predict(self, x):
         return np.where(self.net_input(x) >= 0.0, 1, 0)
 
+    # prawdopodobieństwo regresji logicznej
+    def probability_of_reg(self, x):
+        return self.activation(self.net_input(x))
+
 
 def main():
     iris = datasets.load_iris()
